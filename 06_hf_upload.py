@@ -8,6 +8,8 @@ Usage: python 06_upload_to_huggingface.py <DATA_PULL_NAME> [OPTIONS]
 Example:
   python 06_upload_to_huggingface.py LREC-PAPER --repo alp/rapnic-test
   python 06_upload_to_huggingface.py PILOT --repo alp/rapnic-test --samples 10
+
+TODO: Upload other audio versions (wav16k, mp3 etc)
 """
 
 import sys

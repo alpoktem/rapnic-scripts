@@ -141,21 +141,49 @@ def analyze_demographics(data_pull_name):
         print(f"  {disorder}: {count} ({pct:.1f}%)")
     stats['demographics']['disorder'] = disorder_dict
     
-    # Dialect distribution
+    # Dialectal varieties distribution
     print("")
     print("─" * 70)
-    print("DIALECT DISTRIBUTION")
+    print("DIALECTAL VARIETIES DISTRIBUTION")
     print("─" * 70)
+    
+    # Define all possible dialectal varieties (using actual format from data)
+    all_dialects = [
+        'Central (Barcelona, Tarragona)',
+        'Nord-Occidental (Lleida, Tortosa)',
+        'Girona',
+        'Balear',
+        'Septentrional',
+        'Alacantí',
+        'Castellonenc',
+        'Valencià central',
+        'Alguerès'
+    ]
+    
     dialect_dist = speaker_df['dialect'].value_counts()
     dialect_dict = {}
-    for dialect, count in dialect_dist.items():
-        pct = (count / total_speakers) * 100
-        dialect_dict[str(dialect)] = {
-            'count': int(count),
-            'percentage': round(pct, 1)
-        }
-        print(f"  {dialect}: {count} ({pct:.1f}%)")
+    present_dialects = []
+    absent_dialects = []
+    
+    for dialect in all_dialects:
+        if dialect in dialect_dist.index:
+            count = dialect_dist[dialect]
+            pct = (count / total_speakers) * 100
+            dialect_dict[dialect] = {
+                'count': int(count),
+                'percentage': round(pct, 1)
+            }
+            present_dialects.append(dialect)
+            print(f"  {dialect}: {count} ({pct:.1f}%)")
+        else:
+            absent_dialects.append(dialect)
+    
+    # Report absent dialects
+    if absent_dialects:
+        print(f"\n  No participants from: {', '.join(absent_dialects)}")
+    
     stats['demographics']['dialect'] = dialect_dict
+    stats['demographics']['dialect_absent'] = absent_dialects
     
     # Province distribution
     print("")
@@ -300,11 +328,14 @@ def save_results(stats, speaker_df, data_pull_name):
         for disorder, data in stats['demographics']['disorder'].items():
             f.write(f"  {disorder}: {data['count']} ({data['percentage']}%)\n")
         
-        # Dialect
-        f.write("\nDIALECT DISTRIBUTION\n")
+        # Dialectal varieties
+        f.write("\nDIALECTAL VARIETIES DISTRIBUTION\n")
         f.write("─" * 70 + "\n")
         for dialect, data in stats['demographics']['dialect'].items():
             f.write(f"  {dialect}: {data['count']} ({data['percentage']}%)\n")
+        
+        if stats['demographics']['dialect_absent']:
+            f.write(f"\n  No participants from: {', '.join(stats['demographics']['dialect_absent'])}\n")
         
         # Province
         f.write("\nPROVINCE DISTRIBUTION\n")
